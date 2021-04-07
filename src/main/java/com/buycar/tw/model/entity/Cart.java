@@ -1,7 +1,7 @@
 package com.buycar.tw.model.entity;
 
 import java.io.Serializable;
-
+//Cart
 public class Cart implements Serializable {
     User user;
     private Product product;
