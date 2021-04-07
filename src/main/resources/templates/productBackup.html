@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My first Page by thymeleaf</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+        // 先利用 document.querySelectorAll 將所有清單中的元素選取起來
+        let items = document.querySelectorAll('#items-list > .itemsc');
+        // 將清單中的每一個元素都加上 draggable="true" 的屬性，並且監聽相關事件
+        items.forEach(item => {
+            $(item).prop('draggable', true)
+            item.addEventListener('dragstart', dragStart)
+            item.addEventListener('drop', dropped)
+            item.addEventListener('dragenter', cancelDefault)
+            item.addEventListener('dragover', cancelDefault)
+        })
+        // 取得被拖曳物件的 index 值：
+        function dragStart (e) {
+            var index = $(e.target).index()
+            e.dataTransfer.setData('text/plain', index)
+            console.log("e1= "+e.toString())
+            console.log("index= "+index)
+            console.log("拉起")
+
+
+        }
+        // 放下（drop）的時候要把原本 index 的元素移除（remove）掉
+        function dropped (e) {
+            cancelDefault(e)
+
+            // get new and old index
+            let oldIndex = e.dataTransfer.getData('text/plain')
+            let target = $(e.target)
+            let newIndex = target.index()
+            console.log("oldIndex= "+oldIndex)
+            console.log("target= "+target.toString())
+            console.log("newIndex= "+newIndex)
+
+
+            // remove dropped items at old place
+            let dropped = $(this).parent().children().eq(oldIndex).remove()
+
+            // insert the dropped items at new place
+            if (newIndex < oldIndex) {
+                target.before(dropped)
+            } else {
+                target.after(dropped)
+            }
+            console.log("dropped= "+dropped)
+            console.log("oldIndex2= "+oldIndex)
+            console.log("newIndex2= "+newIndex)
+            console.log("放下")
+        }
+        function cancelDefault (e) {
+            e.preventDefault()
+            e.stopPropagation()
+            return false
+        }
+        });
+    </script>
+    <style type='text/css'>
+        [draggable="true"] {
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        }
+
+        ul.moveable {
+        list-style: none;
+        margin: 0px;}
+
+        li {
+        list-style-image: none;
+        margin: 10px;
+        border: 1px solid #ccc;
+        padding: 4px;
+        border-radius: 4px;
+        color: #666;
+        cursor: move;}
+
+        li:hover {
+        background-color: #eee;}
+
+
+
+    </style>
+</head>
+<body>
+<div th:text="|HELLO! ${uname}|"/>
+<h1>現有產品</h1>
+    <div class="row" id="items-list">
+        <div th:each="product: ${productList}" class="col-md-2 bg-dark rounded border border-primary text-light itemsc">
+
+                <div th:text="|名稱：${product.getPname()}|"/>
+                <div th:text="|類別：${product.getPclass()}|"/>
+                <div th:text="|價格：${product.getPprice()}|"/>
+                <div th:text="|詳細：${product.getPdetail()}|"/>
+                <div th:text="|數量：${product.getPquantity()}|"/>
+
+        </div>
+    </div>
+<h1>您的購物車</h1>
+<div class="row">
+    <div class="col-md-2 bg-dark rounded border border-primary text-light">
+
+    </div>
+
+</div>
+</body>
+</html>

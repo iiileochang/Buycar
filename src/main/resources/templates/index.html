@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My first Page by thymeleaf</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+</head>
+<body>
+
+<div class="row bg-dark">
+    <div class="col-8" style="padding-top: 10px">
+        <h2 th:if="${session.uname}" class="bg-dark text-white" th:text="|Hello! ${session.uname}|"/>
+        <h2 th:unless="${session.uname}" class="bg-dark text-white" th:text="|Hello! Please Login|"/>
+    </div>
+
+</div>
+
+<form action="#" th:action="@{/Login}" method="post" th:unless="${session.uname}">
+    <table>
+        <tr>
+            <td>ID :</td>
+            <td><input class="form-control" type="text" name="uname"></td>
+        </tr>
+        <tr>
+            <td>PWD :</td>
+            <td><input class="form-control" type="password" name="password"></td>
+            <td th:text="${ErrMsg}"/>
+        </tr>
+
+        <td align="left">
+            <input class="btn btn-primary" type="submit" name="operation" value="Login">
+        </td>
+
+        </tr>
+
+    </table>
+</form>
+<hr>
+<div ><h3 th:if="${session.isAdmin eq 0}" th:text="使用者管理"/></div>
+<form action="#" th:action="@{/addUsers}" method="get" th:if="${session.isAdmin eq 0}">
+    <table>
+        <tr>
+            <td>ID :</td>
+            <td><input class="form-control" type="text" name="uname"></td>
+        </tr>
+        <tr>
+            <td>PWD :</td>
+            <td><input class="form-control" type="password" name="password"></td>
+        </tr>
+        <tr>
+            <td>Coin :</td>
+            <td><input class="form-control" type="number" name="coin"></td>
+        </tr>
+        <tr>
+            <td>UserType :</td>
+            <td><input  type="radio" name="isadmin" value="0">Admin<input  type="radio" name="isadmin" value="1">User</td>
+
+        </tr>
+
+        <td align="left">
+            <input class="btn btn-primary" type="submit" name="operation" value="AddUser">
+        </td>
+        <td th:text="${ErrMsg}"/>
+
+        </tr>
+
+    </table>
+</form>
+<button th:if="${session.uname}" class="btn btn-dark btn-mtop" onclick="javascript:location.href='/BackToProductAdmin'" >回到產品管理</button>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My first Page by thymeleaf</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script th:src="@{/js/jquery.min.js}" src="../js/jquery.min.js"></script>
+    <script th:src="@{/js/jquery-3.0.0.min.js}" src="../js/jquery-3.0.0.min.js"></script>
+    <script th:src="@{/js/bootstrap.js}" src="../js/bootstrap.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <link th:href="@{/css/bootstrap.css}" href="../css/bootstrap.css" rel="stylesheet"/>
+
+
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            /*<![CDATA[*/
+            var errMsg = /*[[${errMsg}]]*/ ;
+            var iconType = /*[[${iconType}]]*/ 'info';
+            /*]]>*/
+            if(errMsg!=null){
+                Swal.fire({
+                    position: 'top-end',
+                    icon: iconType,
+                    title: errMsg,
+                    showConfirmButton: false,
+                    timer: 1000
+                })
+            }
+
+            $("#checkoutButton").click(function () {
+                Swal.fire({
+                    title: 'Do you want to Checkout All Product?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: `Checkout!`,
+                    denyButtonText: `Cancel`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        var form = $('<form action="checkout" method="get">'
+                            + '<input type="hidden" type="text" name="keyword" value="'
+                            + "" + '" />' + '</form>');
+                        $('body').append(form);
+                        form.submit();
+                    } else if (result.isDenied) {
+                        Swal.fire('Keep Shopping!', '', 'info')
+                    }
+                })
+            });
+            $("#cleanButton").click(function () {
+                Swal.fire({
+                    title: 'Do you want to Clean All Product?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: `Clean`,
+                    denyButtonText: `Cancel`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        var form = $('<form action="clearCart" method="get">'
+                            + '<input type="hidden" type="text" name="keyword" value="'
+                            + "" + '" />' + '</form>');
+                        $('body').append(form);
+                        form.submit();
+                    } else if (result.isDenied) {
+                        Swal.fire('Noting Will Change!', '', 'info')
+                    }
+                })
+            });
+            // 登出
+            $("#logoutButton").click(function () {
+                Swal.fire({
+                    title: 'Do you want to Logout?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: `Logout`,
+                    denyButtonText: `Cancel`,
+                }).then((result) => {
+                    /* Read more about isConfirmed, isDenied below */
+                    if (result.isConfirmed) {
+                        var form = $('<form action="logoutController" method="get">'
+                            + '<input type="hidden" type="text" name="keyword" value="'
+                            + "" + '" />' + '</form>');
+                        $('body').append(form);
+                        form.submit();
+                    } else if (result.isDenied) {
+                        Swal.fire('Keep In Touch!', '', 'info')
+                    }
+                })
+            });
+            $("#showListButton").click(function () {
+                var form = $('<form action="showOrder" method="get"></form>');
+                $('body').append(form);
+                form.submit();
+            });
+        });
+
+    </script>
+    <script>
+        function SearchKeyword() {
+            var keyword=$("#keyword").val()
+            var form = $('<form action="findByNameLike2" method="post">'
+                + '<input type="hidden" type="text" name="keyword" value="'
+                + keyword + '" />' + '</form>');
+            $('body').append(form);
+            form.submit();
+        }
+    </script>
+</head>
+<body>
+<div class="row bg-dark">
+    <div class="col-8" style="padding-top: 10px"><h2 class="bg-dark text-white"
+                                                     th:text="|HELLO! User ${session.uname} ，您的剩餘金額：${session.coin}|"/>
+    </div>
+    <div class="input-group col-4 mb-3 searchbar bg-dark " style="padding-top: 10px" >
+        <input var="keyword" id="keyword" name="keyword" type="text"
+               class="form-control" placeholder="Enter keywords"
+               onfocus="this.placeholder = ''"
+               onblur="this.placeholder = 'Enter keywords'">
+        <button class="col-lg-2 btn btn-info"
+                onclick="SearchKeyword()">Search</button>
+    </div>
+
+</div>
+<div id="drag-drop-basic">
+    <!--   ==============================================================================-->
+    <h1 class="titleH1" >現有產品</h1>
+    <div id="source-container" data-role="drag-drop-container" class="row">
+        <div th:each="product: ${productList}" class="col-2 col-md-2 col-sm-12 productDiv">
+            <div th:text="|ID ：${product.getPid()}|"/>
+            <div th:text="|名稱：${product.getPname()}|"/>
+            <div th:text="|類別：${product.getPclass()}|"/>
+            <div th:text="|價格：${product.getPprice()}|"/>
+            <div th:text="|詳細：${product.getPdetail()}|"/>
+            <div th:text="|數量：${product.getPquantity()}|"/>
+            <form action="#" th:action="@{/addCar}" th:object="${product}" method="post">
+                <input type="hidden" th:value="${product.getPid()}" name="pid"/>
+                <input type="number"  value="0" name="needQuantitiy">
+                <button type="submit" class="btn addBtn">Add</button>
+            </form>
+        </div>
+    </div>
+    <!--   ==============================================================================-->
+    <h1 class="titleH1" th:text="|您的購物車 目前總金額：${session.get('cartTotalPrice')}|"/>
+    <button th:if="${session.get('cart')}" id="checkoutButton" class="btn btn-success btn-mtop">確認購買</button>
+    <button id="cleanButton" class="btn btn-info btn-mtop">清空購物車</button>
+    <button id="logoutButton" class="btn btn-warning btn-mtop">登出</button>
+    <button id="showListButton" class="btn btn-dark btn-mtop">顯示過往訂單</button>
+    <div id="target-container" data-role="drag-drop-container" class="row">
+        <!--        <div draggable="true" th:each="product: ${session.get(cart)}" class="col-md-2 bg-dark rounded border border-primary text-light">-->
+        <!--            <div>product.getU</div>-->
+        <!--        </div>-->
+        <!--        <p th:text="${session.get('cart')}">-->
+        <div th:each="item,userStat:${session.get('cart')}"
+             class="col-md-2 cartDiv">
+            <div th:text="|ID ：${userStat.current.key}|"/>
+            <div th:text="|名稱：${userStat.current.value.product.pname}|"/>
+            <div th:text="|數量：${userStat.current.value.quantity}|"/>
+            <div th:text="|單價：${userStat.current.value.product.productDetail.pprice}|"/>
+            <div th:text="|總價：${userStat.current.value.totalprice}|"/>
+            <form action="#" th:action="@{/removeCar}" th:object="${session.get('cart')}" method="get">
+                <input type="hidden" th:value="${userStat.current.value.product.pid}" name="pid"/>
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+        <!--        <table class="layui-table">-->
+        <!--            <tr th:each="item,userStat:${session.get('cart')}">-->
+        <!--                <td th:text="${userStat.index}+1"></td>-->
+        <!--                <td th:text="${userStat.current.key}"></td>&lt;!&ndash; key&ndash;&gt;-->
+        <!--                <td th:text="${userStat.current.value.product.pname}"></td>&lt;!&ndash; value&ndash;&gt;-->
+        <!--                <td th:text="${userStat.current.value.quantity}"></td>-->
+        <!--            </tr>-->
+        <!--        </table>-->
+
+    </div>
+
+    <!--   ==============================================================================-->
+</div>
+<!-- 對話盒 -->
+<div id="showListModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                購買紀錄清單
+                <button type="button" class="close btn-danger"
+                        data-dismiss="modal">&times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <table border="1">
+                    <thead>
+                    <tr>
+                        <th>訂單編號</th>
+                        <th>訂單日期</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr id="appendTr">
+                        <td id="appendTd"></td>
+
+                    </tr>
+<!--                    <tr th:each="m,iterStat : ${}">-->
+<!--                        <td th:text="|下標：${iterStat.index}|"/>-->
+<!--                        <td th:text="|下標：${iterStat.index}|"/>-->
+<!--                        <td th:text="|下標：${iterStat.index}|"/>-->
+<!--                    </tr>-->
+                    </tbody>
+
+
+                </table>
+
+            </div>
+            <div class="modal-footer"></div>
+        </div>
+    </div>
+</div>
+<!-- /對話盒 -->
+</body>
+</html>
